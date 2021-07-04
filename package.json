@@ -1,15 +1,22 @@
 {
   "name": "endowment",
+  "homepage": "http://yixiann.github.io/endowment",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://gitname.github.io/endowment",
+  "proxy": "http://127.0.0.1:8000/",
   "dependencies": {
+    "@ant-design/icons": "^4.6.2",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "antd": "^4.16.6",
+    "axios": "^0.21.1",
+    "bootstrap": "^3.4.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "sweetalert": "^2.1.2",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
@@ -37,5 +44,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^3.2.3"
   }
 }
