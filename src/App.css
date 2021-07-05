@@ -36,3 +36,9 @@
     transform: rotate(360deg);
   }
 }
+
+/* Height of content */
+
+.ant-layout-content{
+  min-height: calc(100vh - 64px) !important
+}
