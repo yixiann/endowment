@@ -1,59 +1,40 @@
-import React, { useState, createContext, useContext} from 'react';
+import React, { useState, useContext, useEffect} from 'react';
 import {Dropdown, Layout, Button, Menu, Typography} from 'antd';
 import { UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined, LogoutOutlined } from '@ant-design/icons';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useHistory, useLocation} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import SiderBar from '../components/menu'
 
 const MainLayout = ({ children, authContext, ...props }) => {
 
-  
   const [collapsed, setCollapsed] = useState(false)
 
   const { Header, Content, Sider } = Layout;
 
   const { Text } = Typography
 
-  const username = "Bobby"
+  const [ username, setUsername ] = useState("")
 
-  const handleLogout = () => {
-    console.log("LOGOUT")
-  }
-
-  function useAuth() {
+  const useAuth = () => {
     return useContext(authContext);
   }
-  
-  function AuthButton() {
-    let history = useHistory();
-    let auth = useAuth();
-  
-    return auth.user ? (
-        <button
-          onClick={() => {
-            auth.signout(() => history.push("/login"));
-          }}
-        >
-          Sign out
-        </button>
-    ) : (
-      <>
-        <p>You are not logged in. Number 1</p>
-        <Redirect push to='/login'/>
-      </>
-    );
+
+  var history = useHistory();
+  var auth = useAuth();
+
+  useEffect(()=>{
+    if(username!=auth.user){
+      setUsername(auth.user)
+    }
+  },[username])
+
+  const handleLogout = () => {
+    auth.signout(() => history.push("/login"))
   }
 
   const menu = (
     <Menu>
-      <Menu.Item key="0" onClick={() => handleLogout()} style={{textAlign:"center"}} icon={<LogoutOutlined />}>
-        {/* <button
-          onClick={()=>(console.log("HELLO"))}
-        >
-          <Link to='/login'>
-            Sign out
-          </Link>
-        </button> */}
-        <AuthButton/>
+      <Menu.Item key="0" style={{textAlign:"center"}} icon={<LogoutOutlined />}>
+        <Button onClick={handleLogout}>Sign Out</Button>
       </Menu.Item>
     </Menu>
   );  

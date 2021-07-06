@@ -1,14 +1,16 @@
-import React, { useContext, createContext, useState, Suspense } from "react";
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useHistory, useLocation, useRouteMatch, useParams } from "react-router-dom";
+import React, { createContext, useState, Suspense } from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import './App.css';
 import 'antd/dist/antd.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import Loginpage from "./pages/loginpage";
 import MainLayout from "./layouts/mainlayout";
-import { PrivateRoutes } from "./routes";
+import { PrivateRoutes } from "./routes/routes";
+import { PrivateRoute } from "./routes";
 
 export default function app() {
 
+  //TODO Check if user log in 
   window.onbeforeunload = function() {
     console.log("TEST")
   };
@@ -16,32 +18,15 @@ export default function app() {
   return (
     <ProvideAuth>
       <Router>
-          {/* <AuthButton />
-
-          <ul>
-            <li>
-              <Link to="/public">Public Page</Link>
-            </li>
-            <li>
-              <Link to="/protected">Protected Page</Link>
-            </li>
-          </ul> */}
         <Switch>
-          <Route path="/public">
+
+          {/* <Route path="/public">
             <PublicPage />
-          </Route>
+          </Route> */}
 
           <Route path="/login">
-            {/* <LoginPage /> */}
-            <Loginpage
-              authContext={authContext}
-            />
+            <Loginpage authContext={authContext}/>
           </Route>
-
-
-          {/* <PrivateRoute path="/protected">
-            <ProtectedPage />
-          </PrivateRoute> */}
 
           <MainLayout
             authContext={authContext}
@@ -49,27 +34,22 @@ export default function app() {
             {
               PrivateRoutes.map(route => {
                 return (
-                // <PrivateRouter key={route.path} exact={route.exact} path={route.path}>                  
-                //   <Suspense fallback={<div>{global.loading}...</div>}>
-                //     <route.component language={language} />
-                //   </Suspense>
-                // </PrivateRouter>
-                <PrivateRoute path={route.path}>
-                  <Suspense fallback={<div>loading...</div>}>
-                    <route.component/>
-                  </Suspense>
-                </PrivateRoute>
+                  <PrivateRoute path={route.path} authContext={authContext}>
+                    <Suspense fallback={<div>loading...</div>}>
+                      <route.component/>
+                    </Suspense>
+                  </PrivateRoute>
               )}
               )
             }
           </MainLayout>
-
         </Switch>
       </Router>
     </ProvideAuth>
   );
 }
 
+// LOGIN CHECKING
 const authContext = createContext();
 
 const fakeAuth = {
@@ -84,16 +64,7 @@ const fakeAuth = {
   }
 };
 
-function ProvideAuth({ children }) {
-  const auth = useProvideAuth();
-  return (
-    <authContext.Provider value={auth}>
-      {children}
-    </authContext.Provider>
-  );
-}
-
-function useProvideAuth() {
+const useProvideAuth = () => {
   const [user, setUser] = useState(null);
 
   const signin = cb => {
@@ -117,35 +88,11 @@ function useProvideAuth() {
   };
 }
 
-// Public page
-function PublicPage(){
+const ProvideAuth = ({ children }) => {
+  const auth = useProvideAuth();
   return (
-    <p>hello</p>
-  )
-}
-
-// SHIFT TO ROUTES
-function useAuth() {
-  return useContext(authContext);
-}
-
-function PrivateRoute({ children, ...rest }) {
-  let auth = useAuth();
-  return (
-    <Route
-      {...rest}
-      render={({ location }) =>
-        auth.user ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: "/login",
-              state: { from: location }
-            }}
-          />
-        )
-      }
-    />
+    <authContext.Provider value={auth}>
+      {children}
+    </authContext.Provider>
   );
 }
