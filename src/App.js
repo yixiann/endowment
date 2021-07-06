@@ -1,79 +1,98 @@
-import { BrowserRouter as Router, Switch, Route, Link, useRouteMatch, useParams} from "react-router-dom";
-import HomePage from "./pages/homepage";
+import React, { createContext, useState, Suspense } from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import './App.css';
 import 'antd/dist/antd.css';
 import 'bootstrap/dist/css/bootstrap.css';
+import Loginpage from "./pages/loginpage";
+import MainLayout from "./layouts/mainlayout";
+import { PrivateRoutes } from "./routes/routes";
+import { PrivateRoute } from "./routes";
 
-export default function App() {
+export default function app() {
+
+  //TODO Check if user log in 
+  window.onbeforeunload = function() {
+    console.log("TEST")
+  };
+
   return (
-    <Router>
-      <div>
-        <ul>
-          <li>
-            <Link to="/home">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to="/topics">Topics</Link>
-          </li>
-        </ul>
-
+    <ProvideAuth>
+      <Router>
         <Switch>
-          <Route path="/about">
-            <HomePage/>
+
+          {/* <Route path="/public">
+            <PublicPage />
+          </Route> */}
+
+          <Route path="/login">
+            <Loginpage authContext={authContext}/>
           </Route>
-          <Route path="/topics">
-            <Topics />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
+
+          <MainLayout
+            authContext={authContext}
+          >
+            {
+              PrivateRoutes.map(route => {
+                return (
+                  <PrivateRoute path={route.path} authContext={authContext}>
+                    <Suspense fallback={<div>loading...</div>}>
+                      <route.component/>
+                    </Suspense>
+                  </PrivateRoute>
+              )}
+              )
+            }
+          </MainLayout>
         </Switch>
-      </div>
-    </Router>
+      </Router>
+    </ProvideAuth>
   );
 }
 
-function Home() {
-  return <h2>About</h2>;
+// LOGIN CHECKING
+const authContext = createContext();
+
+const fakeAuth = {
+  isAuthenticated: false,
+  signin(cb) {
+    fakeAuth.isAuthenticated = true;
+    setTimeout(cb, 100); // fake async
+  },
+  signout(cb) {
+    fakeAuth.isAuthenticated = false;
+    setTimeout(cb, 100);
+  }
+};
+
+const useProvideAuth = () => {
+  const [user, setUser] = useState(null);
+
+  const signin = cb => {
+    return fakeAuth.signin(() => {
+      setUser("user");
+      cb();
+    });
+  };
+
+  const signout = cb => {
+    return fakeAuth.signout(() => {
+      setUser(null);
+      cb();
+    });
+  };
+
+  return {
+    user,
+    signin,
+    signout
+  };
 }
 
-function Topics() {
-  let match = useRouteMatch();
-
+const ProvideAuth = ({ children }) => {
+  const auth = useProvideAuth();
   return (
-    <div>
-      <h2>Topics</h2>
-
-      <ul>
-        <li>
-          <Link to={`${match.url}/components`}>Components</Link>
-        </li>
-        <li>
-          <Link to={`${match.url}/props-v-state`}>
-            Props v. State
-          </Link>
-        </li>
-      </ul>
-
-      {/* The Topics page has its own <Switch> with more routes
-          that build on the /topics URL path. You can think of the
-          2nd <Route> here as an "index" page for all topics, or
-          the page that is shown when no topic is selected */}
-      <Switch>
-        <Route path={`${match.path}/:topicId`}>
-          <Topic />
-        </Route>
-        <Route path={match.path}>
-          <h3>Please select a topic.</h3>
-        </Route>
-      </Switch>
-    </div>
+    <authContext.Provider value={auth}>
+      {children}
+    </authContext.Provider>
   );
-}
-
-function Topic() {
-  let { topicId } = useParams();
-  return <h3>Requested topic ID: {topicId}</h3>;
 }
