@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import BargroupPage from '../visxBarGraph/BargroupPage';
 
 export const Aboutpage = ({
   ...props
@@ -11,7 +12,7 @@ export const Aboutpage = ({
 
   return (
     <div className="aboutpage">
-      <p>aboutpage</p>
+      <BargroupPage/>
     </div>
   )
 }

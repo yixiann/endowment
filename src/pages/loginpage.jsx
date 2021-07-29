@@ -29,6 +29,8 @@ export const Loginpage = ({
     });
   };
 
+  login()
+
   return (
     <div style={{ height: '100vh'}}>
       <p>You must log in to view the page at {from.pathname}</p>
